@@ -5,7 +5,7 @@ module TruthTable.TableExecutor (
 import qualified Data.Map as M
 import qualified Data.Set as S
 import           Data.Maybe (fromJust)
-import Text.Layout.Table
+import           Text.Layout.Table
 import           TruthTable.LogicExp
 import           TruthTable.TableExp
 import           TruthTable.Helper
@@ -27,18 +27,6 @@ applyValue (TAnd a b) tv = And (applyValue a tv) (applyValue b tv)
 applyValue (TOr a b) tv = Or (applyValue a tv) (applyValue b tv)
 applyValue (TNot x) tv = Not $ applyValue x tv
 applyValue (TImp a b) tv = Imp (applyValue a tv) (applyValue b tv)
-
-truthTable' exp = do
-    putStrLn $ tableString columns unicodeRoundS (titlesH titles) r
-    where
-        titles = fmap show vars ++ [show exp]
-        vars = S.toList $ tableExpVars exp
-        vals = bindValues $ tableExpVars exp
-        results = fmap bool2IntStr $ fmap eval $ fmap (applyValue exp) vals
-        tmp = zipWith (\x y -> x ++ [y]) (fmap (fmap bool2IntStr) $ (fmap M.elems vals)) results
-        r = fmap rowG tmp
-        columnLayout len = column (fixed len) center dotAlign def
-        columns = (replicate (length titles - 1) (columnLayout 3))  ++ [columnLayout (tableLength exp * 2)]
 
 varWidth :: Int
 varWidth = 3
