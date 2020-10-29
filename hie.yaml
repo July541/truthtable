@@ -1,0 +1,6 @@
+cradle:
+  cabal:
+    - path: "./src"
+      component: "lib:truthtable"
+    - path: "./exe"
+      component: "exe:truthtable-run"
