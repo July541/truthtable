@@ -16,7 +16,7 @@ type TableValues = M.Map Var Bool
 -- For example bindValues Set (A, B) -> [Map (A -> 0, B -> 0), Map (A -> 0, B -> 1),
 -- Map (A -> 1, B -> 0), Map (A -> 1, B -> 1)]
 bindValues :: S.Set Var -> [TableValues]
-bindValues st = fmap (M.fromList . zip stLst) $ genBoolVals (length stLst)
+bindValues st = M.fromList . zip stLst <$> genBoolVals (length stLst)
     where
         stLst = S.toList st
 
@@ -44,14 +44,14 @@ defaultColumnLayout :: Int -> ColSpec
 defaultColumnLayout fixedSize = column (fixed fixedSize) center dotAlign def
 
 columns :: TableExp -> [ColSpec]
-columns exp = (replicate varCnt (defaultColumnLayout varWidth)) <> [defaultColumnLayout $ tableExpWidth exp]
+columns exp = replicate varCnt (defaultColumnLayout varWidth) <> [defaultColumnLayout $ tableExpWidth exp]
     where
-        varCnt = (length $ tableTitles exp) - 1
+        varCnt = length (tableTitles exp) - 1
 
 truthTable :: TableExp -> IO ()
 truthTable exp = putStrLn $ tableString (columns exp) unicodeRoundS (titlesH $ tableTitles exp) content
     where
         expCandidates = bindValues $ tableExpVars exp
-        results = map (bool2IntStr . eval . (applyValue exp)) expCandidates
-        varsStrings = map (map bool2IntStr) $ map M.elems expCandidates
+        results = map (bool2IntStr . eval . applyValue exp) expCandidates
+        varsStrings = map (map bool2IntStr . M.elems) expCandidates
         content = map rowG $ zipWith (\xs s -> xs ++ [s]) varsStrings results
